@@ -17,6 +17,9 @@ class Item(models.Model):
     level = models.PositiveIntegerField(null=True)
     created_at = models.DateTimeField('now')
 
+    class Meta:
+        ordering = ['item_id']
+
     def __str__(self):
         return 'Item {}'.format(self.item_id)
 
@@ -32,7 +35,7 @@ class Watch(models.Model):
         if not self.item.name:
             pass
             #self.item.get_name();
-        sells = Sell.objects.values('owner').order_by('owner').annotate(total=Sum('quantity'), price=Sum('buyout'))
+        sells = Sell.objects.filter(item=self.item).values('owner').order_by('owner').annotate(total=Sum('quantity'), price=Sum('buyout'))
         for sell in sells:
             unit_price = math.trunc(sell['price']/sell['total'])
             time_limit = timezone.now() - timedelta(days=3)
