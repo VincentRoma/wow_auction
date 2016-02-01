@@ -1,7 +1,9 @@
 from django.shortcuts import render
-from .models import Item
+from .models import Item, Watch
 from hotel.models import Sell
 from django.db.models import Avg, Sum
+
+
 
 def item(request, item_id):
     item = Item.objects.get(id=item_id)
@@ -20,3 +22,9 @@ def item(request, item_id):
                 })
     context = {'item': item, 'stats': stats}
     return render(request, 'item/index.html', context)
+
+
+def watch():
+    watchs = Watch.objects.all()
+    for watch in watchs:
+        watch.watch();

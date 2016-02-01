@@ -1,3 +1,8 @@
 from django.contrib import admin
+from .models import Watch
 
-# Register your models here.
+
+class WatchAdmin(admin.ModelAdmin):
+    pass
+
+admin.site.register(Watch, WatchAdmin)
