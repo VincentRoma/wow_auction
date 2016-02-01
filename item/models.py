@@ -15,7 +15,7 @@ class Item(models.Model):
     item_class = models.PositiveIntegerField(null=True)
     sub_class = models.PositiveIntegerField(null=True)
     level = models.PositiveIntegerField(null=True)
-    created_at = models.DateTimeField('now')
+    created_at = models.DateTimeField('now', null=True)
 
     class Meta:
         ordering = ['item_id']

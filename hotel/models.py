@@ -7,16 +7,17 @@ from django.utils import timezone
 
 
 class Sell(models.Model):
-    item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='sells')
-    realm = models.ForeignKey(Realm, on_delete=models.CASCADE, related_name='sells')
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='sells', null=True)
+    realm = models.ForeignKey(Realm, on_delete=models.CASCADE, related_name='sells', null=True)
 
-    auction_id = models.CharField(max_length=50)
-    owner = models.CharField(max_length=50)
-    bid = models.PositiveIntegerField()
-    buyout = models.PositiveIntegerField()
-    quantity = models.IntegerField(default=1)
-    timeLeft = models.CharField(max_length=50)
-    created_at = models.DateTimeField('now')
+    auction_id = models.CharField(max_length=50, null=True)
+    owner = models.CharField(max_length=50, null=True)
+    bid = models.PositiveIntegerField(null=True)
+    buyout = models.PositiveIntegerField(null=True)
+    quantity = models.IntegerField(default=1, null=True)
+    timeLeft = models.CharField(max_length=50, null=True)
+    created_at = models.DateTimeField('now', null=True)
+    batch = models.IntegerField(null=True)
 
 class Sold(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='solds')

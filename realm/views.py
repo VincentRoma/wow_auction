@@ -2,6 +2,7 @@ from django.shortcuts import render
 from .models import Realm
 from hotel.models import Sell, Sold
 from item.models import Item
+from django.utils import timezone
 
 def scan(request, realm_id):
     auction = None
@@ -20,29 +21,39 @@ def persist_auctions(auctions):
     response = handle_request(auctions)
 
     # Remove sold item from current house
-    old_house = Sell.objects.all()
-    remove_sold(old_house, response['auctions'])
+    # old_house = Sell.objects.all()
+    # remove_sold(old_house, response['auctions'])
+    iteration = Sell.objects.last()
+    if iteration:
+        iteration = iteration.batch + 1
+    else:
+        iteration = 1
 
     for realm in response['realms']:
         current_realm = Realm.objects.get_or_create(name=realm['name'])
 
     for auction in response['auctions']:
         item = Item.objects.get_or_create(item_id=auction['item'])
-        sell = Sell.objects.get_or_create(auction_id=auction['auc'])
-
-        if sell[1]:
-            sell[0].auction_id=auction['auc']
-            sell[0].realm=current_realm[0]
-            sell[0].item=item[0]
-            sell[0].owner=auction['owner']
-            sell[0].bid=auction['bid']
-            sell[0].buyout=auction['buyout']
-            sell[0].quantity=auction['quantity']
-            sell[0].timeLeft=auction['timeLeft']
-            sell.save()
+        if item[1]:
+            item[0].created_at=timezone.now()
+            item[0].save()
+            print"Create Item {}".format(item[0].item_id)
+        sell = Sell.objects.create(
+            auction_id=auction['auc'],
+            realm=current_realm[0],
+            item=item[0],
+            owner=auction['owner'],
+            bid=auction['bid'],
+            buyout=auction['buyout'],
+            quantity=auction['quantity'],
+            timeLeft=auction['timeLeft'],
+            created_at=timezone.now(),
+            batch=iteration
+        )
 
 
 def remove_sold(old, new):
+    print "Remove Sold"
     import timeit
     start_time = timeit.default_timer()
 
@@ -53,7 +64,8 @@ def remove_sold(old, new):
 
     # Match old with new if unsell
     for auction in old:
-        if auction.auction_id not in flattened:
+        if int(auction.auction_id) not in flattened:
+            print "Create Old: {} - ".format(auction.auction_id)
             Sold.objects.create(
                 item=auction.item,
                 realm=auction.realm,
