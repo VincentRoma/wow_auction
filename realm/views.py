@@ -19,7 +19,8 @@ def persist_auctions(auctions):
     from api.views import handle_request
     # Ask for the json from the URL
     response = handle_request(auctions)
-
+    bulk_object_auction = []
+    bulk_object_item = []
     # Remove sold item from current house
     # old_house = Sell.objects.all()
     # remove_sold(old_house, response['auctions'])
@@ -33,15 +34,11 @@ def persist_auctions(auctions):
         current_realm = Realm.objects.get_or_create(name=realm['name'])
 
     for auction in response['auctions']:
-        item = Item.objects.get_or_create(item_id=auction['item'])
-        if item[1]:
-            item[0].created_at=timezone.now()
-            item[0].save()
-            print"Create Item {}".format(item[0].item_id)
-        sell = Sell.objects.create(
+        bulk_object_item.append(Item(item_id=auction['auc']))
+        bulk_object_auction.append(Sell(
             auction_id=auction['auc'],
             realm=current_realm[0],
-            item=item[0],
+            item=auction['item'],
             owner=auction['owner'],
             bid=auction['bid'],
             buyout=auction['buyout'],
@@ -49,11 +46,12 @@ def persist_auctions(auctions):
             timeLeft=auction['timeLeft'],
             created_at=timezone.now(),
             batch=iteration
-        )
+        ))
+    Item.objects.bulk_create(bulk_object_item)
+    Sell.objects.bulk_create(bulk_object_auction)
 
 
 def remove_sold(old, new):
-    print "Remove Sold"
     import timeit
     start_time = timeit.default_timer()
 
@@ -65,7 +63,6 @@ def remove_sold(old, new):
     # Match old with new if unsell
     for auction in old:
         if int(auction.auction_id) not in flattened:
-            print "Create Old: {} - ".format(auction.auction_id)
             Sold.objects.create(
                 item=auction.item,
                 realm=auction.realm,

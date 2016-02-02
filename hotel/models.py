@@ -7,9 +7,9 @@ from django.utils import timezone
 
 
 class Sell(models.Model):
-    item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='sells', null=True)
     realm = models.ForeignKey(Realm, on_delete=models.CASCADE, related_name='sells', null=True)
 
+    item = models.PositiveIntegerField(null=True)
     auction_id = models.CharField(max_length=50, null=True)
     owner = models.CharField(max_length=50, null=True)
     bid = models.PositiveIntegerField(null=True)
