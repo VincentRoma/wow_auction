@@ -31,3 +31,10 @@ def get_auction():
     print "Get Auction"
     response = handle_request("https://eu.api.battle.net/wow/auction/data/"+WOW_API['server']+"?locale="+WOW_API['locale']+"&apikey="+WOW_API['apikey'])
     return response['files'][0]['url']
+
+def get_item(id):
+    response = [];
+    if id:
+        print "https://eu.api.battle.net/wow/item/"+ id +"?locale="+WOW_API['locale']+"&apikey="+WOW_API['apikey']
+        response = handle_request("https://eu.api.battle.net/wow/item/"+ id +"?locale="+WOW_API['locale']+"&apikey="+WOW_API['apikey'])
+    return response;
