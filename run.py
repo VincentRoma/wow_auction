@@ -1,6 +1,7 @@
 import requests
 import json
 import settings
+import time
 from datetime import datetime
 from requests_oauthlib import OAuth2Session
 from oauthlib.oauth2 import BackendApplicationClient
@@ -8,7 +9,7 @@ from utilities.item_id_ref import ITEMS_REF
 from elasticsearch import Elasticsearch, helpers 
 
 # Instanciate ES client
-es = Elasticsearch()
+#es = Elasticsearch()
 
 # Instanciate Oauth2 Client & Session
 client = BackendApplicationClient(client_id=settings.CLIENT_ID)
@@ -35,11 +36,11 @@ print("SCANNING "+str(len(data['auctions']))+" ITEMS")
 for d in data['auctions']:
     if d['item']['id'] in ITEMS_REF:
         # Refresh buffer for incremental bulk insert
-        if len(refined) % 100 == 0:
-            print(helpers.bulk(es, refined, request_timeout=1000))
-            refined = []
-            pushed = pushed + 100
-            print("PUSHED " + str(pushed) +"/"+ str(len(data['auctions'])))
+        #if len(refined) % 100 == 0:
+            #print(helpers.bulk(es, refined, request_timeout=1000))
+            #refined = []
+            #pushed = pushed + 100
+            #print("PUSHED " + str(pushed) +"/"+ str(len(data['auctions'])))
         d['_index'] = "wow-" + str(d['item']['id'])
         d['_id'] = d['id']
         d['timestamp'] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -50,4 +51,7 @@ print("PUSHED " + str(pushed) +"/"+ str(len(data['auctions'])))
 print("SCANNED "+ str(scanned))
 #print(refined)
 # Write results to Elastic
-print(helpers.bulk(es, refined, request_timeout=1000))
+f = open("data/data-"+str(time.time())+".json", "w")
+f.write(json.dumps(refined))
+f.close()
+#print(helpers.bulk(es, refined, request_timeout=1000))
